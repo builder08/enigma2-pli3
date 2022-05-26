@@ -35,8 +35,6 @@
 #include "bsod.h"
 #include "version_info.h"
 
-#include <Python.h>
-
 #ifdef OBJECT_DEBUG
 int object_total_remaining;
 
@@ -357,9 +355,14 @@ const char *getBoxType()
 void dump_malloc_stats(void)
 {
 #ifdef __GLIBC__
-	struct mallinfo mi = mallinfo();
-	eDebug("[ENIGMA] MALLOC: %d total", mi.uordblks);
+#if __GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 34)
+	struct mallinfo2 mi = mallinfo2();
+	eDebug("MALLOC: %zu total", mi.uordblks);
 #else
-	eDebug("[ENIGMA] MALLOC: info not exposed");
+	struct mallinfo mi = mallinfo();
+	eDebug("MALLOC: %d total", mi.uordblks);
+#endif
+#else
+	eDebug("MALLOC: info not exposed");
 #endif
 }
